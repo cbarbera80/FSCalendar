@@ -25,7 +25,9 @@
 @property (strong, nonatomic) NSString *subtitle;
 @property (strong, nonatomic) UIImage  *image;
 
+@property (assign, nonatomic) BOOL hasAllEventCompleted;
 @property (assign, nonatomic) BOOL hasEvent;
+@property (assign, nonatomic) BOOL deselecting;
 
 @property (assign, nonatomic) BOOL dateIsPlaceholder;
 @property (assign, nonatomic) BOOL dateIsSelected;
@@ -33,14 +35,8 @@
 
 @property (readonly, nonatomic) BOOL weekend;
 
-@property (strong, nonatomic) UIColor *preferedSelectionColor;
-@property (strong, nonatomic) UIColor *preferedTitleDefaultColor;
-@property (strong, nonatomic) UIColor *preferedTitleSelectionColor;
-@property (strong, nonatomic) UIColor *preferedSubtitleDefaultColor;
-@property (strong, nonatomic) UIColor *preferedSubtitleSelectionColor;
-@property (strong, nonatomic) UIColor *preferedEventColor;
-
 - (UIColor *)colorForCurrentStateInDictionary:(NSDictionary *)dictionary;
+
 - (void)performSelecting;
 
 @end

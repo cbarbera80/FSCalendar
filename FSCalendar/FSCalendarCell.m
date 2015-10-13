@@ -13,14 +13,6 @@
 #import "FSCalendarDynamicHeader.h"
 #import "FSCalendarConstance.h"
 
-@interface FSCalendarCell ()
-
-@property (readonly, nonatomic) UIColor *colorForBackgroundLayer;
-@property (readonly, nonatomic) UIColor *colorForTitleLabel;
-@property (readonly, nonatomic) UIColor *colorForSubtitleLabel;
-
-@end
-
 @implementation FSCalendarCell
 
 #pragma mark - Life cycle
@@ -103,7 +95,7 @@
 {
     _backgroundLayer.hidden = NO;
     _backgroundLayer.path = [UIBezierPath bezierPathWithOvalInRect:_backgroundLayer.bounds].CGPath;
-    _backgroundLayer.fillColor = self.colorForBackgroundLayer.CGColor;
+    _backgroundLayer.fillColor = [self colorForCurrentStateInDictionary:_appearance.backgroundColors].CGColor;
     
 #define kAnimationDuration kFSCalendarDefaultBounceAnimationDuration
     
@@ -131,28 +123,28 @@
     _titleLabel.text = [NSString stringWithFormat:@"%@",@(_date.fs_day)];
     
 #define m_calculateTitleHeight \
-        CGFloat titleHeight = [_titleLabel.text sizeWithAttributes:@{NSFontAttributeName:self.titleLabel.font}].height;
+CGFloat titleHeight = [_titleLabel.text sizeWithAttributes:@{NSFontAttributeName:self.titleLabel.font}].height;
 #define m_adjustLabelFrame \
-    if (_subtitle) { \
-        _subtitleLabel.hidden = NO; \
-        _subtitleLabel.text = _subtitle; \
-        _subtitleLabel.font = [UIFont systemFontOfSize:_appearance.subtitleTextSize]; \
-        CGFloat subtitleHeight = [_subtitleLabel.text sizeWithAttributes:@{NSFontAttributeName:self.subtitleLabel.font}].height;\
-        CGFloat height = titleHeight + subtitleHeight; \
-        _titleLabel.frame = CGRectMake(0, \
-                                       (self.contentView.fs_height*5.0/6.0-height)*0.5, \
-                                       self.fs_width, \
-                                       titleHeight); \
-    \
-        _subtitleLabel.frame = CGRectMake(0, \
-                                          _titleLabel.fs_bottom - (_titleLabel.fs_height-_titleLabel.font.pointSize),\
-                                          self.fs_width,\
-                                          subtitleHeight);\
-        _subtitleLabel.textColor = self.colorForSubtitleLabel; \
-    } else { \
-        _titleLabel.frame = CGRectMake(0, 0, self.fs_width, floor(self.contentView.fs_height*5.0/6.0)); \
-        _subtitleLabel.hidden = YES; \
-    }
+if (_subtitle) { \
+_subtitleLabel.hidden = NO; \
+_subtitleLabel.text = _subtitle; \
+_subtitleLabel.font = [UIFont systemFontOfSize:_appearance.subtitleTextSize]; \
+CGFloat subtitleHeight = [_subtitleLabel.text sizeWithAttributes:@{NSFontAttributeName:self.subtitleLabel.font}].height;\
+CGFloat height = titleHeight + subtitleHeight; \
+_titleLabel.frame = CGRectMake(0, \
+(self.contentView.fs_height*5.0/6.0-height)*0.5, \
+self.fs_width, \
+titleHeight); \
+\
+_subtitleLabel.frame = CGRectMake(0, \
+_titleLabel.fs_bottom - (_titleLabel.fs_height-_titleLabel.font.pointSize),\
+self.fs_width,\
+subtitleHeight);\
+_subtitleLabel.textColor = [self colorForCurrentStateInDictionary:_appearance.subtitleColors];\
+} else { \
+_titleLabel.frame = CGRectMake(0, 0, self.fs_width, floor(self.contentView.fs_height*5.0/6.0)); \
+_subtitleLabel.hidden = YES; \
+}
     
     if (self.calendar.ibEditing) {
         m_calculateTitleHeight
@@ -166,22 +158,28 @@
         });
     }
     
-    _titleLabel.textColor = self.colorForTitleLabel;
+    _titleLabel.textColor = [self colorForCurrentStateInDictionary:_appearance.titleColors];
     
     _backgroundLayer.hidden = !self.selected && !self.dateIsToday && !self.dateIsSelected;
     if (!_backgroundLayer.hidden) {
         _backgroundLayer.path = _appearance.cellStyle == FSCalendarCellStyleCircle ?
         [UIBezierPath bezierPathWithOvalInRect:_backgroundLayer.bounds].CGPath :
         [UIBezierPath bezierPathWithRect:_backgroundLayer.bounds].CGPath;
-        _backgroundLayer.fillColor = self.colorForBackgroundLayer.CGColor;
+        _backgroundLayer.fillColor = [self colorForCurrentStateInDictionary:_appearance.backgroundColors].CGColor;
     }
     
     _imageView.image = _image;
     _imageView.hidden = !_image;
     
     _eventLayer.hidden = !_hasEvent;
+    
     if (!_eventLayer.hidden) {
-        _eventLayer.fillColor = self.preferedEventColor.CGColor ?: _appearance.eventColor.CGColor;
+        _eventLayer.fillColor = _appearance.eventColor.CGColor;
+        
+        if (_hasAllEventCompleted){
+            
+            _eventLayer.fillColor = [UIColor redColor].CGColor;
+        }
     }
 }
 
@@ -192,7 +190,7 @@
 
 - (UIColor *)colorForCurrentStateInDictionary:(NSDictionary *)dictionary
 {
-    if (self.isSelected || self.dateIsSelected) {
+    if (self.isSelected || (self.dateIsSelected && !_deselecting)) {
         if (self.dateIsToday) {
             return dictionary[@(FSCalendarCellStateSelected|FSCalendarCellStateToday)] ?: dictionary[@(FSCalendarCellStateSelected)];
         }
@@ -208,32 +206,6 @@
         return dictionary[@(FSCalendarCellStateWeekend)];
     }
     return dictionary[@(FSCalendarCellStateNormal)];
-}
-
-#pragma mark - Properties
-
-- (UIColor *)colorForBackgroundLayer
-{
-    if (self.dateIsSelected || self.isSelected) {
-        return self.preferedSelectionColor ?: [self colorForCurrentStateInDictionary:_appearance.backgroundColors];
-    }
-    return [self colorForCurrentStateInDictionary:_appearance.backgroundColors];
-}
-
-- (UIColor *)colorForTitleLabel
-{
-    if (self.dateIsSelected || self.isSelected) {
-        return self.preferedTitleSelectionColor ?: [self colorForCurrentStateInDictionary:_appearance.titleColors];
-    }
-    return self.preferedTitleDefaultColor ?: [self colorForCurrentStateInDictionary:_appearance.titleColors];
-}
-
-- (UIColor *)colorForSubtitleLabel
-{
-    if (self.dateIsSelected || self.isSelected) {
-        return self.preferedSubtitleSelectionColor ?: [self colorForCurrentStateInDictionary:_appearance.subtitleColors];
-    }
-    return self.preferedSubtitleDefaultColor ?: [self colorForCurrentStateInDictionary:_appearance.subtitleColors];
 }
 
 @end

@@ -64,20 +64,9 @@ typedef NS_ENUM(NSInteger, FSCalendarCellState) {
 - (NSString *)calendar:(FSCalendar *)calendar subtitleForDate:(NSDate *)date;
 - (UIImage *)calendar:(FSCalendar *)calendar imageForDate:(NSDate *)date;
 - (BOOL)calendar:(FSCalendar *)calendar hasEventForDate:(NSDate *)date;
+- (BOOL)calendar:(FSCalendar *)calendar isCompletedAllTasksOnDate:(NSDate *)date;
 - (NSDate *)minimumDateForCalendar:(FSCalendar *)calendar;
 - (NSDate *)maximumDateForCalendar:(FSCalendar *)calendar;
-
-@end
-
-@protocol FSCalendarDelegateAppearance <NSObject>
-
-@optional
-- (UIColor *)calendar:(FSCalendar *)calendar appearance:(FSCalendarAppearance *)appearance selectionColorForDate:(NSDate *)date;
-- (UIColor *)calendar:(FSCalendar *)calendar appearance:(FSCalendarAppearance *)appearance titleDefaultColorForDate:(NSDate *)date;
-- (UIColor *)calendar:(FSCalendar *)calendar appearance:(FSCalendarAppearance *)appearance titleSelectionColorForDate:(NSDate *)date;
-- (UIColor *)calendar:(FSCalendar *)calendar appearance:(FSCalendarAppearance *)appearance subtitleDefaultColorForDate:(NSDate *)date;
-- (UIColor *)calendar:(FSCalendar *)calendar appearance:(FSCalendarAppearance *)appearance subtitleSelectionColorForDate:(NSDate *)date;
-- (UIColor *)calendar:(FSCalendar *)calendar appearance:(FSCalendarAppearance *)appearance eventColorForDate:(NSDate *)date;
 
 @end
 
